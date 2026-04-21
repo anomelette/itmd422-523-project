@@ -13,7 +13,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <h1>Technical Institute Certification Program</h1>
         <div>Login with your credentials below:</div>
         <br>
-        <form action="menu.html" method="get">
+        <form action="LoginServlet" method="POST">
             <label for="username">Username:</label><br>
             <input type="text" id="username" name="username" required/><br>
             <br>
@@ -23,6 +23,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <input type="submit"/></a><br>
             <br>
         </form>
+        <script>
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("error") === "1") {
+                document.write('<p style="color:red;">Invalid username or password. Please try again.</p>');
+            }
+        </script>
         <div>Don't have an account yet? <a href="signup.html"> Sign up here!</a></div>
     </body>
 </html>
