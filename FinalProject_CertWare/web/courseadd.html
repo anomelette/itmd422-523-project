@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>Technical Institute Certification Program - Course Add</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h1>Technical Institute Certification Program</h1>
+        <div>Please enter the details of the new course for a student below:</div>
+        <br>
+        <form action="landing.html" method="get">
+            <label for="coursename">Course Name:</label><br>
+            <input type="text" id="coursename" name="coursename" required/><br>
+            <br>
+            <label for="courseid">Course ID:</label><br>
+            <input type="text" id="courseid" name="courseid" required/><br>
+            <br>
+            <label for="isActive">Status:</label><br>
+            <label for="active">Active</label><br>
+            <input type="radio" id="active" name="isActive" required/><br>
+            <label for="inactive">Inactive</label><br>
+            <input type="radio" id="inactive" name="isActive" required/><br>
+            <br>
+            <label for="enrollid">Enrollment ID:</label><br>
+            <input type="text" id="enrollid" name="enrollid" required/><br>
+            <br>
+            <label for="enrolldate">Enrollment Date:</label><br>
+            <input type="date" id="enrolldate" name="enrolldate" required/><br>
+            <br>
+            <label for="enddate">End Date:</label><br>
+            <input type="date" id="enddate" name="enddate" required/><br>
+            <br>
+            <label for="completestatus">Completion Status:</label><br>
+            <label for="enrolled">Enrolled</label><br>
+            <input type="radio" id="enrolled" name="completestatus" required/><br>
+            <label for="passed">Passed</label><br>
+            <input type="radio" id="passed" name="completestatus" required/><br>
+            <label for="dropped">Dropped</label><br>
+            <input type="radio" id="dropped" name="completestatus" required/><br>
+            <label for="failed">Failed</label><br>
+            <input type="radio" id="failed" name="completestatus" required/><br>
+            <br>
+            <label for="studentid">Student ID:</label><br>
+            <input type="text" id="studentid" name="studentid" required/><br>
+            <br>
+            <input type="submit"/><br>
+            <br>
+        </form>
+    </body>
+</html>
