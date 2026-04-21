@@ -12,8 +12,28 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
     <body>
         <h1>Technical Institute Certification Program</h1>
         <div>Please enter the details of the new certification below:</div>
-        <form>
-            
+        <br>
+        <form action="menu.html" method="get">
+            <label for="certname">Certification Name:</label><br>
+            <input type="text" id="certname" name="certname" required/><br>
+            <br>
+            <label for="validmonths">Valid Months:</label><br>
+            <input type="number" id="validmonths" name="validmonths" required/><br>
+            <br>
+            <label for="issuedate">Issue Date:</label><br>
+            <input type="date" id="issuedate" name="issuedate" required/><br>
+            <br>
+            <label for="expirydate">Expiry Date:</label><br>
+            <input type="date" id="expirydate" name="expirydate" required/><br>
+            <br>
+            <label for="studentid">Student ID:</label><br>
+            <input type="text" id="studentid" name="studentid" required><br>
+            <br>
+            <label for="certid">Certification ID:</label><br>
+            <input type="text" id="certid" name="certid" required/><br>
+            <br>
+            <input type="submit"/><br>
+            <br>
         </form>
     </body>
 </html>
