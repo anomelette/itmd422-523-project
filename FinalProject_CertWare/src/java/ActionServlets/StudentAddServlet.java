@@ -100,22 +100,54 @@ public class StudentAddServlet extends HttpServlet {
                 out.println("</body></html>");
             }
             
-        // Redirect back to form with error
+        // Return error message
         } catch (SQLException e) {
             e.printStackTrace();
-            response.sendRedirect("studentadd.html?error=1");
+
+            response.setContentType("text/html;charset=UTF-8");
+
+            try (PrintWriter out = response.getWriter()) {
+                out.println("<!DOCTYPE html>");
+                out.println("<html><head><title>Error</title></head><body>");
+
+                out.println("<h2 style='color:red;'>Error adding student</h2>");
+
+                out.println("<p><b>Details:</b> " + e.getMessage() + "</p>");
+
+                out.println("<a href='studentadd.html'>");
+                out.println("<button>Try Again</button>");
+                out.println("</a>");
+
+                out.println("<br><br>");
+                out.println("<a href='menu.html'>");
+                out.println("<button>Go to Menu</button>");
+                out.println("</a>");
+
+                out.println("</body></html>");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("studentadd.html?error=1");
 
-        } finally {
-            // close connections
-            try {
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            response.setContentType("text/html;charset=UTF-8");
+
+            try (PrintWriter out = response.getWriter()) {
+                out.println("<!DOCTYPE html>");
+                out.println("<html><head><title>Error</title></head><body>");
+
+                out.println("<h2 style='color:red;'>Unexpected Error</h2>");
+                out.println("<p>" + e.getMessage() + "</p>");
+
+                out.println("<a href='studentadd.html'>");
+                out.println("<button>Try Again</button>");
+                out.println("</a>");
+
+                out.println("<br><br>");
+                out.println("<a href='menu.html'>");
+                out.println("<button>Go to Menu</button>");
+                out.println("</a>");
+
+                out.println("</body></html>");
             }
         }
     }
