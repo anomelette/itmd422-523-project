@@ -13,12 +13,15 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <h1>Technical Institute Certification Program</h1>
         <div>Please type the ID of the student you would like to modify:</div>
         <br>
-        <form action="landing.html" method="get">
-            <label for="studentid">Student ID:</label><br>
-            <input type="text" id="studentid" name="studentid" required/><br>
-            <br>
-            <input type="submit"/><br>
-            <br>
+        <form action="StudentModifyServlet" method="POST">
+            <label>Student ID:</label><br>
+            <input type="text" name="studentid" required><br><br>
+
+            <input type="hidden" name="step" value="lookup">
+            <input type="submit" value="Find Student">
+
+            <br><br>
+            <a href="menu.html"><button type="button">Back to Menu</button></a>
         </form>
     </body>
 </html>
