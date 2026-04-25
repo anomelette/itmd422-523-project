@@ -42,9 +42,6 @@ public class StudentModifyServlet extends HttpServlet {
 
             out.println("<html><body>");
 
-            // =========================
-            // STEP 1: LOOKUP STUDENT
-            // =========================
             if ("lookup".equals(step)) {
 
                 String sql = "SELECT * FROM Student WHERE StudentID=?";
@@ -56,9 +53,7 @@ public class StudentModifyServlet extends HttpServlet {
                     out.println("<h2>Student Found</h2>");
                                         
                     // back button
-                    out.println("<a href='studentmodify.html'>");
-                    out.println("<button type='button'>Back</button>");
-                    out.println("</a>");  
+                    out.println("<a href='studentmodify.html'><button type='button'>Back</button></a>"); 
                     
                     out.println("<p><b>Name:</b> " + rs.getString("FirstName") + " " + rs.getString("LastName") + "</p>");
                     out.println("<p><b>Email:</b> " + rs.getString("Email") + "</p>");
