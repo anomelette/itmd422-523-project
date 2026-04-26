@@ -13,7 +13,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <h1>Technical Institute Certification Program</h1>
         <div>Please enter the details of the new certification below:</div>
         <br>
-        <form action="landing.html" method="get">
+        <form action="CertificationAddServlet" method="POST">
             <label for="certname">Certification Name:</label><br>
             <input type="text" id="certname" name="certname" required/><br>
             <br>
@@ -28,9 +28,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <br>
             <label for="studentid">Student ID:</label><br>
             <input type="text" id="studentid" name="studentid" required><br>
-            <br>
-            <label for="certid">Certification ID:</label><br>
-            <input type="text" id="certid" name="certid" required/><br>
+            <label for="courseid">Course ID:</label><br>
+            <input type="number" id="courseid" name="courseid" required><br><br>
             <br>
             <input type="submit"/><br>
             <br>
