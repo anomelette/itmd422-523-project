@@ -27,18 +27,16 @@ public class CourseAddServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String coursename = request.getParameter("coursename");
-        String isActive = request.getParameter("isActive");
 
         Connection conn = null;
         PreparedStatement ps = null;
 
         try {
             conn = MyConnections.getConnection();
-            String sql = "INSERT INTO courses (CourseName, isActive) VALUES (?, ?)";
+            String sql = "INSERT INTO Courses (CourseName, isActive) VALUES (?, 1)";
             ps = conn.prepareStatement(sql);
 
             ps.setString(1, coursename);
-            ps.setInt(2, Integer.parseInt(isActive));
             ps.executeUpdate();
 
             response.setContentType("text/html;charset=UTF-8");
