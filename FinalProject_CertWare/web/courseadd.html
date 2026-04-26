@@ -13,7 +13,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <h1>Technical Institute Certification Program</h1>
         <div>Please enter the details of the new course for a student below:</div>
         <br>
-        <form action="landing.html" method="get">
+        <form action="CourseAddServlet" method="POST">
             <label for="coursename">Course Name:</label><br>
             <input type="text" id="coursename" name="coursename" required/><br>
             <br>
@@ -22,9 +22,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <br>
             <label for="isActive">Status:</label><br>
             <label for="active">Active</label><br>
-            <input type="radio" id="active" name="isActive" required/><br>
+            <input type="radio" id="active" name="isActive" value="1" required/><br>
             <label for="inactive">Inactive</label><br>
-            <input type="radio" id="inactive" name="isActive" required/><br>
+            <input type="radio" id="inactive" name="isActive" value="0" required/><br>
             <br>
             <label for="enrollid">Enrollment ID:</label><br>
             <input type="text" id="enrollid" name="enrollid" required/><br>
@@ -37,13 +37,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <br>
             <label for="completestatus">Completion Status:</label><br>
             <label for="enrolled">Enrolled</label><br>
-            <input type="radio" id="enrolled" name="completestatus" required/><br>
+            <input type="radio" id="enrolled" name="completestatus" value="Enrolled" required/><br>
             <label for="passed">Passed</label><br>
-            <input type="radio" id="passed" name="completestatus" required/><br>
+            <input type="radio" id="passed" name="completestatus" value="Passed" required/><br>
             <label for="dropped">Dropped</label><br>
-            <input type="radio" id="dropped" name="completestatus" required/><br>
+            <input type="radio" id="dropped" name="completestatus" value="Dropped" required/><br>
             <label for="failed">Failed</label><br>
-            <input type="radio" id="failed" name="completestatus" required/><br>
+            <input type="radio" id="failed" name="completestatus" value="Failed" required/><br>
             <br>
             <label for="studentid">Student ID:</label><br>
             <input type="text" id="studentid" name="studentid" required/><br>
