@@ -29,6 +29,8 @@ public class StudentModifyServlet extends HttpServlet {
         String step = request.getParameter("step");
         String action = request.getParameter("action");
         String studentid = request.getParameter("studentid");
+        String firstname = request.getParameter("firstname");
+        String lastname  = request.getParameter("lastname");
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -36,50 +38,104 @@ public class StudentModifyServlet extends HttpServlet {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-
+        
         try {
             conn = MyConnections.getConnection();
 
             out.println("<html><body>");
 
             if ("lookup".equals(step)) {
+                
+                boolean hasID    = studentid != null && !studentid.trim().isEmpty();
+                boolean hasFirst = firstname != null && !firstname.trim().isEmpty();
+                boolean hasLast  = lastname  != null && !lastname.trim().isEmpty();
+                
+                if (!hasID && !hasFirst && !hasLast) {
+                    out.println("<h2 style='color:red;'>Please enter at least one search field.</h2>");
+                    out.println("<a href='studentmodify.html'><button>Try Again</button></a>");
+                    out.println("</body></html>");
+                    return;
+                }
+                
+                StringBuilder sql = new StringBuilder(
+                    "SELECT s.StudentID, s.FirstName, s.LastName, s.Email, s.DOB, " +
+                    "c.CertName, sc.IssueDate, sc.ExpiryDate " +
+                    "FROM Student s " +
+                    "LEFT JOIN StudentCertifications sc ON s.StudentID = sc.StudentID " +
+                    "LEFT JOIN Certifications c ON sc.CertID = c.CertID " +
+                    "WHERE 1=1"
+                );
 
-                String sql = "SELECT * FROM Student WHERE StudentID=?";
-                ps = conn.prepareStatement(sql);
-                ps.setInt(1, Integer.parseInt(studentid));
+                if (hasID)    sql.append(" AND s.StudentID = ?");
+                if (hasFirst) sql.append(" AND s.FirstName = ?");
+                if (hasLast)  sql.append(" AND s.LastName = ?");
+
+                ps = conn.prepareStatement(sql.toString());
+                
+                int index = 1;
+                if (hasID)    ps.setInt(index++, Integer.parseInt(studentid.trim()));
+                if (hasFirst) ps.setString(index++, firstname.trim());
+                if (hasLast)  ps.setString(index++, lastname.trim());
+                
                 rs = ps.executeQuery();
+                
+                boolean studentFound = false;
+                String foundStudentID = null;
+                
+                while (rs.next()) {
 
-                if (rs.next()) {
-                    out.println("<h2>Student Found</h2>");
-                                        
-                    // back button
-                    out.println("<a href='studentmodify.html'><button type='button'>Back</button></a>"); 
-                    
-                    out.println("<p><b>Name:</b> " + rs.getString("FirstName") + " " + rs.getString("LastName") + "</p>");
-                    out.println("<p><b>Email:</b> " + rs.getString("Email") + "</p>");
-                    out.println("<p><b>DOB:</b> " + rs.getDate("DOB") + "</p>");
+                    if (!studentFound) {
+                        foundStudentID = rs.getString("StudentID");
+
+                        out.println("<h2>Student Found</h2>");
+
+                        out.println("<a href='studentmodify.html'><button type='button'>Back</button></a>");
+
+                        out.println("<p><b>Name:</b> " + rs.getString("FirstName") + " " + rs.getString("LastName") + "</p>");
+                        out.println("<p><b>Email:</b> " + rs.getString("Email") + "</p>");
+                        out.println("<p><b>DOB:</b> " + rs.getDate("DOB") + "</p>");
+
+                        // Certifications header
+                        out.println("<h3>Certifications</h3>");
+                        out.println("<table border='1' cellpadding='8'>");
+                        out.println("<tr><th>Certification</th><th>Issue Date</th><th>Expiry Date</th></tr>");
+
+                        studentFound = true;
+                    }
+
+                    if (rs.getString("CertName") != null) {
+                        String expiry = rs.getString("ExpiryDate") != null ? rs.getString("ExpiryDate") : "N/A";
+                        out.println("<tr>");
+                        out.println("<td>" + rs.getString("CertName") + "</td>");
+                        out.println("<td>" + rs.getString("IssueDate") + "</td>");
+                        out.println("<td>" + expiry + "</td>");
+                        out.println("</tr>");
+                    }
+                }
+
+                if (studentFound) {
+
+                    out.println("</table>");
 
                     out.println("<h3>What would you like to do?</h3>");
-
                     out.println("<div style='display:flex; gap:10px;'>");
-                    
-                    // update button
+
                     out.println("<form action='StudentModifyServlet' method='POST'>");
-                    out.println("<input type='hidden' name='studentid' value='" + studentid + "'>");
+                    out.println("<input type='hidden' name='studentid' value='" + foundStudentID + "'>");
                     out.println("<input type='hidden' name='step' value='edit'>");
                     out.println("<button type='submit'>Modify</button>");
-                    out.println("</form><br>");
+                    out.println("</form>");
 
-                    // remove button
                     out.println("<form action='StudentModifyServlet' method='POST'>");
-                    out.println("<input type='hidden' name='studentid' value='" + studentid + "'>");
+                    out.println("<input type='hidden' name='studentid' value='" + foundStudentID + "'>");
                     out.println("<input type='hidden' name='action' value='delete'>");
                     out.println("<button type='submit' onclick=\"return confirm('Are you sure you would like to remove this student profile? This action cannot be undone.');\">Remove</button>");
                     out.println("</form>");
-                    out.println("</div>");                  
+
+                    out.println("</div>");
 
                 } else {
-                    out.println("<h2 style='color:red;'>Student not found</h2>");
+                    out.println("<h2 style='color:red;'>No student found matching the provided details.</h2>");
                     out.println("<a href='studentmodify.html'><button>Try Again</button></a>");
                 }
             }

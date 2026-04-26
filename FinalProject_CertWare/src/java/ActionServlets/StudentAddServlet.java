@@ -60,7 +60,6 @@ public class StudentAddServlet extends HttpServlet {
         String lname = request.getParameter("lname");
         String email = request.getParameter("email");
         String dob = request.getParameter("dob");
-        String studentid = request.getParameter("studentid");
 
         Connection conn = null;
         PreparedStatement ps = null;
@@ -70,16 +69,15 @@ public class StudentAddServlet extends HttpServlet {
             conn = MyConnections.getConnection();
 
             // create SQL INSERT statement
-            String sql = "INSERT INTO Student (StudentID, FirstName, LastName, Email, DOB) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO Student (FirstName, LastName, Email, DOB) VALUES (?, ?, ?, ?)";
 
             ps = conn.prepareStatement(sql);
 
             // set values
-            ps.setInt(1, Integer.parseInt(studentid));
-            ps.setString(2, fname);
-            ps.setString(3, lname);
-            ps.setString(4, email);
-            ps.setDate(5, java.sql.Date.valueOf(dob));
+            ps.setString(1, fname);
+            ps.setString(2, lname);
+            ps.setString(3, email);
+            ps.setDate(4, java.sql.Date.valueOf(dob));
 
             // execute insert
             ps.executeUpdate();
