@@ -49,22 +49,31 @@ public class CertificationAddServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String certname = request.getParameter("certname");
-        String validmonths = request.getParameter("validmonths");
-        String courseid = request.getParameter("courseid");
+        String studentid  = request.getParameter("studentid");
+        String certid     = request.getParameter("certid");
+        String issuedate  = request.getParameter("issuedate");
+        String expirydate = request.getParameter("expirydate");
 
         Connection conn = null;
         PreparedStatement ps = null;
 
         try {
-            String sql = "INSERT INTO certifications (CertName, ValidMonths, CourseID) VALUES (?, ?, ?)";
             
             conn = MyConnections.getConnection();
+            
+            String sql = "INSERT INTO StudentCertifications (StudentID, CertID, IssueDate, ExpiryDate) VALUES (?, ?, ?, ?)";
+            
             ps = conn.prepareStatement(sql);
 
-            ps.setString(1, certname);
-            ps.setInt(2, Integer.parseInt(validmonths));
-            ps.setInt(3, Integer.parseInt(courseid));
+            ps.setInt(1, Integer.parseInt(studentid));
+            ps.setInt(2, Integer.parseInt(certid));
+            ps.setDate(3, java.sql.Date.valueOf(issuedate));
+            
+            if (expirydate != null && !expirydate.trim().isEmpty()) {
+                ps.setDate(4, java.sql.Date.valueOf(expirydate));
+            } else {
+                ps.setNull(4, java.sql.Types.DATE);
+            }
 
             ps.executeUpdate();
 
@@ -72,12 +81,9 @@ public class CertificationAddServlet extends HttpServlet {
 
             try (PrintWriter out = response.getWriter()) {
                 out.println("<html><body>");
-
-                out.println("<h2>Certification added successfully!</h2>");
-
+                out.println("<h2>Student certification added successfully!</h2>");
                 out.println("<a href='menu.html'><button>Back to Menu</button></a>");
-                out.println("<a href='certificationadd.html'><button>Add Another Certification</button></a>");
-
+                out.println("<a href='studentcertificationadd.html'><button>Add Another</button></a>");
                 out.println("</body></html>");
             }
 
@@ -88,38 +94,32 @@ public class CertificationAddServlet extends HttpServlet {
 
             try (PrintWriter out = response.getWriter()) {
                 out.println("<html><body>");
-
-                out.println("<h2 style='color:red;'>Error adding certification</h2>");
+                out.println("<h2 style='color:red;'>Error adding student certification</h2>");
                 out.println("<p><b>Details:</b> " + e.getMessage() + "</p>");
-
-                out.println("<a href='certificationadd.html'><button>Try Again</button></a>");
-
+                out.println("<a href='studentcertificationadd.html'><button>Try Again</button></a>");
                 out.println("<br><br>");
-
-
                 out.println("<a href='menu.html'><button>Back to Menu</button></a>");
-
                 out.println("</body></html>");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-
             response.setContentType("text/html;charset=UTF-8");
-
             try (PrintWriter out = response.getWriter()) {
                 out.println("<html><body>");
-
                 out.println("<h2 style='color:red;'>Unexpected Error</h2>");
                 out.println("<p>" + e.getMessage() + "</p>");
-
-                out.println("<a href='certificationadd.html'><button>Try Again</button></a>");
-
+                out.println("<a href='studentcertificationadd.html'><button>Try Again</button></a>");
                 out.println("<br><br>");
-
                 out.println("<a href='menu.html'><button>Back to Menu</button></a>");
-
                 out.println("</body></html>");
+            }
+        } finally {
+            try {
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }

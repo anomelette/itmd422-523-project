@@ -17,8 +17,34 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <label for="coursename">Course Name:</label><br>
             <input type="text" id="coursename" name="coursename" required/><br>
             <br>
+            <hr>
+            <h3>Certification (optional)</h3>
+            <p>If this course issues a certification, fill in the details below.</p>
+
+            <label>
+                <input type="checkbox" name="hascert" value="yes">
+                This course issues a certification
+            </label><br><br>
+
+            <div id="certFields" style="display:none;">
+                Certification Name:<br>
+                <input type="text" name="certname"><br><br>
+
+                Valid For (months, leave blank if it never expires):<br>
+                <input type="number" name="validmonths" min="1"><br><br>
+            </div>
+            <br>
             <input type="submit"/><br>
             <br>
         </form>
+        <script>
+            const checkbox = document.querySelector('input[name="hascert"]');
+            const certFields = document.getElementById('certFields');
+
+            checkbox.addEventListener('change', () => {
+                certFields.style.display = checkbox.checked ? 'block' : 'none';
+            });
+        </script>
+        <a href="menu.html"><button type="button">Back to Menu</button></a>
     </body>
 </html>

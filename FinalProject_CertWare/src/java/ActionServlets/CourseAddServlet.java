@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -27,19 +29,45 @@ public class CourseAddServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String coursename = request.getParameter("coursename");
+        String hasCert     = request.getParameter("hascert");
+        String certname    = request.getParameter("certname");
+        String validmonths = request.getParameter("validmonths");
 
         Connection conn = null;
         PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             conn = MyConnections.getConnection();
-            String sql = "INSERT INTO Courses (CourseName, isActive) VALUES (?, 1)";
-            ps = conn.prepareStatement(sql);
+            String courseSQL = "INSERT INTO Courses (CourseName, isActive) VALUES (?, 1)";
+            ps = conn.prepareStatement(courseSQL, Statement.RETURN_GENERATED_KEYS);
 
             ps.setString(1, coursename);
             ps.executeUpdate();
 
             response.setContentType("text/html;charset=UTF-8");
+            
+            int generatedCourseID = -1;
+            rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                generatedCourseID = rs.getInt(1);
+            }
+            
+            if ("yes".equals(hasCert) && certname != null && !certname.trim().isEmpty()) {
+                String certSQL = "INSERT INTO Certifications (CertName, ValidMonths, CourseID) VALUES (?, ?, ?)";
+                PreparedStatement certPs = conn.prepareStatement(certSQL);
+                certPs.setString(1, certname.trim());
+
+                if (validmonths != null && !validmonths.trim().isEmpty()) {
+                    certPs.setInt(2, Integer.parseInt(validmonths.trim()));
+                } else {
+                    certPs.setNull(2, java.sql.Types.INTEGER);
+                }
+
+                certPs.setInt(3, generatedCourseID);
+                certPs.executeUpdate();
+                certPs.close();
+            }
 
             try (PrintWriter out = response.getWriter()) {
                 out.println("<html><body>");
