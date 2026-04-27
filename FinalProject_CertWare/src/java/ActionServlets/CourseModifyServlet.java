@@ -157,6 +157,7 @@ public class CourseModifyServlet extends HttpServlet {
                     out.println("</select>");
                     out.println("</td>");
                     out.println("</tr>");
+                    
                 }
                 out.println("</table>");
                 
@@ -183,6 +184,8 @@ public class CourseModifyServlet extends HttpServlet {
                 out.println("<input type='hidden' name='action' value='delete'>");
                 out.println("<button type='submit' onclick=\"return confirm('Are you sure you want to delete this course? This action cannot be undone.');\">Remove</button>");
                 out.println("</form>");
+                
+                out.println("<a href='coursemodify.html'><button type='button'>Back</button></a>");
 
                 out.println("</div>");
             }
