@@ -76,8 +76,8 @@ public class EnrollmentServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String studentid = request.getParameter("coursename");
-        String courseid = request.getParameter("isActive");
+        String studentid = request.getParameter("studentid");
+        String courseid = request.getParameter("courseid");
         
         Connection conn = null;
         PreparedStatement ps = null;

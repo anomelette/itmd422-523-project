@@ -59,7 +59,7 @@ public class CourseModifyServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doPost(request, response);
     }
 
     /**
@@ -74,67 +74,197 @@ public class CourseModifyServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        String step    = request.getParameter("step");
+        String action  = request.getParameter("action");
         String courseID = request.getParameter("courseid");
-
-        if (courseID == null || courseID.trim().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/coursemodify.html");
-            return;
-        }
+        
+        
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        
+        out.println("<p>Debug - Step: " + step + " | Action: " + action + " | CourseID: " + courseID + "</p>");
 
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
+        try {
+            conn = MyConnections.getConnection();
 
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head><title>Course Enrollment - " + courseID + "</title></head>");
-            out.println("<body>");
+            out.println("<html><body>");
             out.println("<h1>Technical Institute Certification Program</h1>");
-            out.println("<h2>Enrolled Students for Course ID: " + courseID + "</h2>");
 
-            try {
-                conn = MyConnections.getConnection();
-                String sql = "SELECT StudentID, EnrollDate FROM Enrollment WHERE CourseID = ?";
-                ps = conn.prepareStatement(sql);
-                ps.setString(1, courseID);
+            if ("lookup".equals(step)) {
+
+                if (courseID == null || courseID.trim().isEmpty()) {
+                    out.println("<h2 style='color:red;'>Please enter a Course ID.</h2>");
+                    out.println("<a href='coursemodify.html'><button>Try Again</button></a>");
+                    out.println("</body></html>");
+                    return;
+                }
+
+                String checkSQL = "SELECT CourseID FROM Courses WHERE CourseID = ?";
+                ps = conn.prepareStatement(checkSQL);
+                ps.setString(1, courseID.trim());
                 rs = ps.executeQuery();
 
-                out.println("<table border='1'>");
-                out.println("<tr><th>Student ID</th><th>Enroll Date</th></tr>");
+                if (!rs.next()) {
+                    out.println("<h2 style='color:red;'>No course found with Course ID: " + courseID + "</h2>");
+                    out.println("<a href='coursemodify.html'><button>Try Again</button></a>");
+                    out.println("</body></html>");
+                    return;
+                }
 
-                boolean hasResults = false;
+                rs.close();
+                ps.close();
+
+                String courseSQL = "SELECT CourseName, isActive FROM Courses WHERE CourseID = ?";
+                ps = conn.prepareStatement(courseSQL);
+                ps.setString(1, courseID.trim());
+                rs = ps.executeQuery();
+                rs.next();
+
+                String courseName  = rs.getString("CourseName");
+                String isActive    = rs.getString("isActive");
+
+                rs.close();
+                ps.close();
+
+                String enrollSQL = "SELECT StudentID, EnrollDate, CompletionStatus FROM Enrollment WHERE CourseID = ?";
+                ps = conn.prepareStatement(enrollSQL);
+                ps.setString(1, courseID.trim());
+                rs = ps.executeQuery();
+
+                out.println("<h2>Course Found: " + courseName + " (ID: " + courseID + ")</h2>");
+                out.println("<p><b>Active:</b> " + ("1".equals(isActive) ? "Yes" : "No") + "</p>");
+
+                out.println("<h3>Enrolled Students</h3>");
+                out.println("<table border='1' cellpadding='8'>");
+                out.println("<tr><th>Student ID</th><th>Enroll Date</th><th>Status</th></tr>");
+
+                boolean hasStudents = false;
                 while (rs.next()) {
-                    hasResults = true;
+                    hasStudents = true;
                     out.println("<tr>");
                     out.println("<td>" + rs.getString("StudentID") + "</td>");
                     out.println("<td>" + rs.getString("EnrollDate") + "</td>");
+                    out.println("<td>" + rs.getString("CompletionStatus") + "</td>");
                     out.println("</tr>");
                 }
                 out.println("</table>");
 
-                if (!hasResults) {
-                    out.println("<p>No students are currently enrolled in Course ID: " + courseID + "</p>");
+                if (!hasStudents) {
+                    out.println("<p>No students are currently enrolled in this course.</p>");
                 }
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-                out.println("<p>Database error: " + e.getMessage() + "</p>");
-            } finally {
-                try {
-                    if (rs != null) rs.close();
-                    if (ps != null) ps.close();
-                    if (conn != null) conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                out.println("<h3>What would you like to do?</h3>");
+                out.println("<div style='display:flex; gap:10px;'>");
+
+                out.println("<form action='CourseModifyServlet' method='POST'>");
+                out.println("<input type='hidden' name='courseid' value='" + courseID + "'>");
+                out.println("<input type='hidden' name='step' value='edit'>");
+                out.println("<button type='submit'>Modify</button>");
+                out.println("</form>");
+
+                out.println("<form action='CourseModifyServlet' method='POST'>");
+                out.println("<input type='hidden' name='courseid' value='" + courseID + "'>");
+                out.println("<input type='hidden' name='action' value='delete'>");
+                out.println("<button type='submit' onclick=\"return confirm('Are you sure you want to delete this course? This action cannot be undone.');\">Remove</button>");
+                out.println("</form>");
+
+                out.println("</div>");
+            }
+
+            else if ("edit".equals(step)) {
+
+                String sql = "SELECT CourseName, isActive FROM Courses WHERE CourseID = ?";
+                ps = conn.prepareStatement(sql);
+                ps.setString(1, courseID);
+                rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    String currentName     = rs.getString("CourseName");
+                    String currentIsActive = rs.getString("isActive");
+
+                    out.println("<h2>Edit Course</h2>");
+
+                    out.println("<form action='CourseModifyServlet' method='POST'>");
+                    out.println("<input type='hidden' name='courseid' value='" + courseID + "'>");
+                    out.println("<input type='hidden' name='action' value='update'>");
+
+                    out.println("Course Name:<br>");
+                    out.println("<input name='coursename' value='" + currentName + "'><br><br>");
+
+                    out.println("Active:<br>");
+                    out.println("<select name='isActive'>");
+                    out.println("<option value='1'" + ("1".equals(currentIsActive) ? " selected" : "") + ">Yes</option>");
+                    out.println("<option value='0'" + ("0".equals(currentIsActive) ? " selected" : "") + ">No</option>");
+                    out.println("</select><br><br>");
+
+                    out.println("<button type='submit'>Save Changes</button>");
+                    out.println("</form>");
                 }
             }
 
-            out.println("<br><a href='coursemodify.html'>Search another course</a>");
-            out.println("</body>");
-            out.println("</html>");
+            else if ("delete".equals(action)) {
+
+                String sql = "DELETE FROM Courses WHERE CourseID = ?";
+                ps = conn.prepareStatement(sql);
+                ps.setString(1, courseID);
+
+                int rows = ps.executeUpdate();
+
+                if (rows > 0) {
+                    out.println("<h2>Course Deleted Successfully</h2>");
+                } else {
+                    out.println("<h2 style='color:red;'>Course not found</h2>");
+                }
+
+                out.println("<a href='menu.html'><button>Back to Menu</button></a>");
+            }
+
+            else if ("update".equals(action)) {
+
+                String sql = "UPDATE Courses SET CourseName = ?, isActive = ? WHERE CourseID = ?";
+                ps = conn.prepareStatement(sql);
+                ps.setString(1, request.getParameter("coursename"));
+                ps.setString(2, request.getParameter("isActive"));
+                ps.setString(3, courseID);
+
+                int rows = ps.executeUpdate();
+
+                if (rows > 0) {
+                    out.println("<h2>Course Updated Successfully</h2>");
+                } else {
+                    out.println("<h2 style='color:red;'>Update failed</h2>");
+                }
+
+                out.println("<a href='menu.html'><button>Back to Menu</button></a>");
+                out.println("<a href='coursemodify.html'><button>Modify/Remove Another Course</button></a>");
+            }
+
+            else {
+                out.println("<h2>Invalid request</h2>");
+                out.println("<p>Step: " + step + "</p>");
+                out.println("<p>Action: " + action + "</p>");
+                out.println("<a href='coursemodify.html'><button>Try Again</button></a>");
+            }
+
+            out.println("</body></html>");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            out.println("<h2 style='color:red;'>Error occurred</h2>");
+            out.println("<p>" + e.getMessage() + "</p>");
+            out.println("<a href='coursemodify.html'><button>Try Again</button></a>");
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
