@@ -81,8 +81,6 @@ public class CourseModifyServlet extends HttpServlet {
         
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
-        out.println("<p>Debug - Step: " + step + " | Action: " + action + " | CourseID: " + courseID + "</p>");
 
         Connection conn = null;
         PreparedStatement ps = null;
@@ -139,8 +137,10 @@ public class CourseModifyServlet extends HttpServlet {
                 out.println("<p><b>Active:</b> " + ("1".equals(isActive) ? "Yes" : "No") + "</p>");
 
                 out.println("<h3>Enrolled Students</h3>");
+                out.println("<form action='CourseModifyServlet' method='POST'>");
+                out.println("<input type='hidden' name='courseid' value='" + courseID + "'>");
+                out.println("<input type='hidden' name='action' value='updatestatus'>");
                 out.println("<table border='1' cellpadding='8'>");
-                out.println("<tr><th>Student ID</th><th>Enroll Date</th><th>Status</th></tr>");
 
                 boolean hasStudents = false;
                 while (rs.next()) {
@@ -148,11 +148,24 @@ public class CourseModifyServlet extends HttpServlet {
                     out.println("<tr>");
                     out.println("<td>" + rs.getString("StudentID") + "</td>");
                     out.println("<td>" + rs.getString("EnrollDate") + "</td>");
-                    out.println("<td>" + rs.getString("CompletionStatus") + "</td>");
+                    out.println("<td>");
+                    out.println("<select name=\"status_" + rs.getString("StudentID") + "\">");
+                    out.println("<option value=\"Enrolled\"" + ("Enrolled".equals(rs.getString("CompletionStatus")) ? " selected" : "") + ">Enrolled</option>");
+                    out.println("<option value=\"Passed\""  + ("Passed".equals(rs.getString("CompletionStatus"))   ? " selected" : "") + ">Passed</option>");
+                    out.println("<option value=\"Dropped\"" + ("Dropped".equals(rs.getString("CompletionStatus"))  ? " selected" : "") + ">Dropped</option>");
+                    out.println("<option value=\"Failed\""  + ("Failed".equals(rs.getString("CompletionStatus"))   ? " selected" : "") + ">Failed</option>");
+                    out.println("</select>");
+                    out.println("</td>");
                     out.println("</tr>");
                 }
                 out.println("</table>");
-
+                
+                if (hasStudents) {
+                    out.println("<br><button type='submit'>Save Status Changes</button>");
+                }
+                
+                out.println("</form>");
+                
                 if (!hasStudents) {
                     out.println("<p>No students are currently enrolled in this course.</p>");
                 }
@@ -162,7 +175,6 @@ public class CourseModifyServlet extends HttpServlet {
 
                 out.println("<form action='CourseModifyServlet' method='POST'>");
                 out.println("<input type='hidden' name='courseid' value='" + courseID + "'>");
-                out.println("<input type='hidden' name='step' value='edit'>");
                 out.println("<button type='submit'>Modify</button>");
                 out.println("</form>");
 
@@ -242,7 +254,33 @@ public class CourseModifyServlet extends HttpServlet {
                 out.println("<a href='menu.html'><button>Back to Menu</button></a>");
                 out.println("<a href='coursemodify.html'><button>Modify/Remove Another Course</button></a>");
             }
+            else if ("updatestatus".equals(action)) {
+                String sql = "UPDATE Enrollment SET CompletionStatus = ? WHERE CourseID = ? AND StudentID = ?";
+                ps = conn.prepareStatement(sql);
 
+                String fetchSQL = "SELECT StudentID FROM Enrollment WHERE CourseID = ?";
+                PreparedStatement fetchPs = conn.prepareStatement(fetchSQL);
+                fetchPs.setString(1, courseID);
+                rs = fetchPs.executeQuery();
+
+                int updatedCount = 0;
+                while (rs.next()) {
+                    String sid = rs.getString("StudentID");
+                    String newStatus = request.getParameter("status_" + sid);
+                    if (newStatus != null) {
+                        ps.setString(1, newStatus);
+                        ps.setString(2, courseID);
+                        ps.setString(3, sid);
+                        ps.executeUpdate();
+                        updatedCount++;
+                    }
+                }
+                fetchPs.close();
+
+                out.println("<h2>Updated " + updatedCount + " enrollment(s) successfully.</h2>");
+                out.println("<a href='menu.html'><button>Back to Menu</button></a>");
+                out.println("<a href='coursemodify.html'><button>Modify Another Course</button></a>");
+            }
             else {
                 out.println("<h2>Invalid request</h2>");
                 out.println("<p>Step: " + step + "</p>");
