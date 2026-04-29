@@ -1,1 +1,2 @@
-# ITMD422-523-Project
+# ITMD422-523-Final-Project
+### By: Amelie Yen, Wary Vega, and Xander Fry
